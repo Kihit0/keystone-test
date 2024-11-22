@@ -1,0 +1,34 @@
+services:
+  database:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+    volumes:
+      - keystone-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  keystone:
+    build: .
+    env_file: .env
+    restart: unless-stopped
+    environment:
+      DATABASE_CLIENT: ${DATABASE_CLIENT}
+      DATABASE_HOST: database
+      DATABASE_NAME: ${DATABASE_NAME}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PORT: ${DATABASE_PORT}
+    depends_on:
+      - database
+    volumes:
+      - .:/app
+    ports:
+      - "1337:1337"
+
+
+volumes:
+  keystone-data:
